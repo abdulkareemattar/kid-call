@@ -28,7 +28,7 @@ export async function verifyToken(token) {
 
     return {
         id: decoded.sub,
-        email: decoded.email
+        email: decoded.email,
+        role: decoded.app_metadata?.role
     }
-
 }
