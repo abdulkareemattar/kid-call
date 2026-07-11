@@ -1,6 +1,6 @@
 import express from 'express';
-import { addKid, getKidsOf } from './kids.js';
-import { validateAddingKid, validateGetKidsOf } from './validators.js';
+import { addKid, getKidsOf, confirmKid } from './kids.js';
+import { validateAddingKid, validateGetKidsOf, validateConfirmKid } from './validators.js';
 
 export const router = express.Router();
 
@@ -8,7 +8,4 @@ router.post('/', validateAddingKid, addKid);
 
 router.get('/:id', validateGetKidsOf, getKidsOf);
 
-router.post('/:id/confirm', validateConfirmKid, confirmKid);
-
-
-
+router.patch('/:id/confirm', validateConfirmKid, confirmKid);
