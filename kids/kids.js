@@ -55,3 +55,22 @@ export async function getAllKids(req, res, next) {
 export async function callKid(req, res, next) {
     
 }
+
+export async function confirmKid(req, res, next) {
+    if(req.user.role !== 'admin') {
+        throw new AppError("You are not allowed to access this resource", 403, error);
+    }
+    const id = req.params.id;
+    const client = await createSupabaseClient();
+
+    const { error } = await client
+        .from('kids')
+        .update({ is_confirmed: true })
+        .eq('id', id);
+
+    if(error){
+        throw new AppError("Could not confirm kid", 500, error);
+    }
+
+    res.sendStatus(200);
+}
