@@ -8,7 +8,7 @@ router.post('/', validateAddingKid, addKid);
 
 router.get('/:id', validateGetKidsOf, getKidsOf);
 
-router.post('/:id/confirmKid', validateConfirmKid, confirmKid);
+router.post('/:id/confirm', validateConfirmKid, confirmKid);
 
 
 
