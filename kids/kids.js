@@ -38,7 +38,7 @@ export async function getKidsOf(req, res, next) {
 
 export async function getAllKids(req, res, next) {
     if(req.user.role !== 'admin') {
-        throw new AppError("You are not allowed to access this resource", 403, error);
+        throw new AppError("You are not allowed to access this resource", 403);
     }
 
     const client = await createSupabaseClient();
@@ -53,7 +53,14 @@ export async function getAllKids(req, res, next) {
 }
 
 export async function callKid(req, res, next) {
-    
+    const client = await createSupabaseClient();
+    const kid_id = req.params.id;
+    const { data, error } = await client.from("kids").select("*").eq("id", kid_id).single();
+
+    if(error){
+    throw new AppError("Invalid kid ID: Kid does not exist", 400, error);
+    }
+    res.status(200).send(data);
 }
 
 export async function confirmKid(req, res, next) {
