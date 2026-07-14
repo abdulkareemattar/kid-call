@@ -60,8 +60,10 @@ export async function callKid(req, res, next) {
 
     if(error){
     throw new AppError("Invalid kid ID: Kid does not exist", 400, error);
-    }   
-
+    }
+    if (req.user.role !== 'admin' && data.user_id !== user_id) {
+    throw new AppError("You are not allowed to access this resource", 403);
+    }
     const { error:logError } = await client.from("call_logs").insert({
         user_id: user_id,
         kid_id: kid_id
@@ -71,5 +73,25 @@ export async function callKid(req, res, next) {
         throw new AppError("Could not record call log", 500, logError);
     }
 
+    
     res.status(200).send(data);
+}
+
+export async function confirmKid(req, res, next) {
+    if(req.user.role !== 'admin') {
+        throw new AppError("You are not allowed to access this resource", 403);
+    }
+    const id = req.params.id;
+    const client = await createSupabaseClient();
+
+    const { error } = await client
+        .from('kids')
+        .update({ is_confirmed: true })
+        .eq('id', id);
+
+    if(error){
+        throw new AppError("Could not confirm kid", 500, error);
+    }
+
+    res.sendStatus(200);
 }
