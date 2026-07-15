@@ -55,11 +55,22 @@ export async function getAllKids(req, res, next) {
 export async function callKid(req, res, next) {
     const client = await createSupabaseClient();
     const kid_id = req.params.id;
+    const user_id = req.user.id;
+
     const { data, error } = await client.from("kids").select("*").eq("id", kid_id).single();
 
     if(error){
     throw new AppError("Invalid kid ID: Kid does not exist", 400, error);
     }
+    const { error: callError } = await client.from("calls").insert({
+        user_id: user_id,
+        kid_id: kid_id
+    });
+
+    if (callError) {
+        throw new AppError("Could not persist active call", 500, callError);
+    }
+
     res.status(200).send(data);
 }
 
