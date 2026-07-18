@@ -56,24 +56,35 @@ export async function callKid(req, res, next) {
     const client = await createSupabaseClient();
     const kid_id = req.params.id;
     const user_id = req.user.id;
+    
     const { data, error } = await client.from("kids").select("*").eq("id", kid_id).single();
 
-    if(error){
-    throw new AppError("Invalid kid ID: Kid does not exist", 400, error);
+    if (error) {
+        throw new AppError("Invalid kid ID: Kid does not exist", 400, error);
     }
+
     if (req.user.role !== 'admin' && data.user_id !== user_id) {
-    throw new AppError("You are not allowed to access this resource", 403);
+        throw new AppError("You are not allowed to access this resource", 403);
     }
-    const { error:logError } = await client.from("call_logs").insert({
-        user_id: user_id,
-        kid_id: kid_id
+
+    const { error: callError } = await client.from("calls").insert({
+        user_id,
+        kid_id
+    });
+
+    if (callError) {
+        throw new AppError("Could not persist active call", 500, callError);
+    }
+
+    const { error: logError } = await client.from("call_logs").insert({
+        user_id,
+        kid_id
     });
 
     if (logError) {
         throw new AppError("Could not record call log", 500, logError);
     }
 
-    
     res.status(200).send(data);
 }
 
